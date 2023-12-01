@@ -1,0 +1,16 @@
+[
+{
+  "modid": "tiabs",
+  "name": "TIABS",
+  "description": "Time in a Bottle: Standalone",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["AETERNAL"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

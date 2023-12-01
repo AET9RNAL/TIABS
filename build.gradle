@@ -1,0 +1,170 @@
+buildscript {
+    repositories {
+        maven {
+            name = ":forge"
+            url = 'https://files.minecraftforge.net/maven'
+        }
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+
+        jcenter()
+        mavenCentral()
+
+        flatDir {
+            dirs 'lib'
+        }
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.+', changing: true
+        classpath "gradle.plugin.net.kyori:blossom:1.1.0"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: "net.kyori.blossom"
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+
+version = modVersion
+group = modGroup
+archivesBaseName = modBaseName
+
+compileJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+blossom {
+    replaceToken '%VERSION%', modVersion
+
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ["src/main/java"]
+        }
+        resources {
+            srcDirs = ["src/main/resources"]
+        }
+    }
+}
+minecraft {
+    //noinspection GroovyAssignabilityCheck
+    mappings channel: "snapshot", version: mcp_version
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
+
+        server {
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
+}
+
+repositories {
+
+    maven {
+        url "http://maven.cil.li"
+    }
+    maven {
+        url "https://www.cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+
+    flatDir {
+        dirs 'lib'
+    }
+}
+
+dependencies {
+    minecraft([
+            group  : "net.minecraftforge",
+            name   : "forge",
+            version: "${minecraft_version}-${forge_version}"
+
+    ])
+//    compileOnly
+//    runtimeOnly
+    compileOnly 'javax.annotation:javax.annotation-api:1.3.2'
+    runtimeOnly "curse.maven:jei-integration-238222:4538010"
+    compileOnly "curse.maven:jei-integration-238222:4538010"
+/*    runtimeOnly "mezz.jei:jei_1.12.2:4.10.0.199"
+    compileOnly "mezz.jei:jei_1.12.2:4.10.0.199"*/
+}
+
+
+
+
+// Example for how to get properties into the manifest for reading by the runtime..
+jar {
+    manifest {
+        attributes([
+            "Specification-Title": "tiabs",
+            "Specification-Vendor": "AETERNAL",
+            "Specification-Version": "1", // We are version 1 of ourselves
+            "Implementation-Title": project.name,
+            "Implementation-Version": "${version}",
+            "Implementation-Vendor" :"AETERNAL",
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    options.incremental = true // one flag, and things will get so MUCH faster
+    sourceCompatibility = targetCompatibility = '1.8'
+}
+jar.archiveFileName = "${project.archivesBaseName}-${project.minecraft_version}-${project.version}.jar"
+
+jar.finalizedBy('reobfJar')
+defaultTasks 'build'
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url "file:///${project.projectDir}/mcmodsrepo"
+        }
+    }
+}
+
+// Hack to include resources for Forge 1.12.2 using FG3
+sourceSets { main { output.resourcesDir = output.classesDirs[0] } }
+task devJar(type: Jar) {
+    classifier = 'dev'
+    from sourceSets.main.output
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives devJar
+    archives sourcesJar
+}
