@@ -10,7 +10,13 @@ This is a standalone item for Minecraft 1.12.2 from Random Things by: Lumien321.
 There will be NO port to newer versions.
 
 
+Permissions:
 
+1.You are allowed to redistribute this mod, but you must credit the download source as 'CurseForge' or 'Modrinth' and include a direct link that leads to the page of this mod
+
+2.You can use this mod in your modpacks
+
+3.You are allowed to modify the source code of the mod
 
 
 
